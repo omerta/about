@@ -1,16 +1,18 @@
 ---
-#layout: post
-title:  Compare development workflow - Creating a model in ZF3, Symfony, and Laravel
+layout: post
+title:  "Compare development workflow - Creating a model in ZF3, Symfony, and Laravel"
 #date:   2018-05-16 16:16:01 -0600
 categories: [ zf3, laravel, symfony ]
 ---
+
+> # DRAFT
 
 MVC is a architecture paradigm and pattern, MVC create layers for each different
 concern: model, view and controller.
 
 For Model-View-Controller all data, logic and business rules is represented
 by model layer. Moreover, the model layer is the heart and soul of every MVC
-application. For this reason it seems correcto to start with the model. What
+application. For this reason it seems correct to start with the model. What
 is a model in ZF3, Laravel and Symfony?
 
 In this post we describe the development workflow from create a migrations and
@@ -19,14 +21,17 @@ its corresponding database table, the model and how to populate it with fake dat
 We show this workflow comparing tree PHP frameworks: Laravel, Zend Framework
 and Symfony.
 
+I am using Debian GNU/Linux 9.4 (stretch), Zend Framework 3.0.3, Symfony 3.4.9
+and Laravel 5.5.40.
+
 ## Create `Room` model in Laravel
 
-Suppose that we already installed `laravel`. Laravel is configure to use MySQL
+Suppose that we already installed Laravel. Laravel is configure to use MySQL
 by default. In this tutorial we use `SQLite`, in order to use this database
 we change the settings in `app/config/database.php` file. The database is stored
-in the `app/database` directory.
+in the `app/database/` directory.
 
-In Laravel is posible start to develop creating a migration. A migration define
+In Laravel is posible to start the develop creating a migration. A migration define
 the database structure through a PHP class. The database schema would be defined
 in source code.
 
@@ -53,11 +58,11 @@ To this point, we have created a database table using two Laravel commands.
 We need interact with database. This task is achieved by an ORM. Laravel provides
 Eloquent as ActiveRecord ORM.
 
-    *Laravel Up & Running*, Matt Stauffer
-
-    "Eloquent is one of Laravel's most popular and influential features. It's a great example
-    of how Laravel is different from the majority of PHP frameworks; in a world of Data‐
-    Mapper ORMs that are powerful but complex, Eloquent stands out for its simplicity."
+> Eloquent is one of Laravel's most popular and influential features. It's a great example
+> of how Laravel is different from the majority of PHP frameworks; in a world of Data‐
+> Mapper ORMs that are powerful but complex, Eloquent stands out for its simplicity.
+>
+> *Laravel Up & Running*, Matt Stauffer
 
 Is time of make the model for the table `rooms`. Laravel ships with `Eloquent`
 ORM. The `make:modal` command will create the `app/Room.php` file with the
@@ -77,11 +82,11 @@ In this second stage, we might create a new record in the database using the
 
 To end we are going to create a seed file to insert a fake data.
 
-    *Laravel Up & Running*, Matt Stauffer
-
-    "Seeding with Laravel is so simple, it has gained widespread adoption as a
-    part of normal development workflows in a way it hasn't in previous PHP
-    frameworks."
+> Seeding with Laravel is so simple, it has gained widespread adoption as a
+> part of normal development workflows in a way it hasn't in previous PHP
+> frameworks.
+>
+> *Laravel Up & Running*, Matt Stauffer
 
 The seed classes are stored in `database/seeds` directory. We use the seeder to
 load sample data into database. In order to create a seeder we run the
@@ -120,7 +125,7 @@ command:
 hotel-zf3$ composer require doctrine/doctrine-orm-module
 ```
 
-If is necessary create the `module/Application/src/Entity` directory. For this
+If is necessary we create the `module/Application/src/Entity` directory. For this
 moment we only have got Doctrine component installed and configured.
 
 Now, we can create the entity room that will represent the room table. We create
@@ -152,13 +157,21 @@ php vendor/bin/doctrine-module migrations:migrate
 
 ## Create `Room` model in Symfony
 
+We suppose that Symfony is already installed, for example run the following
+command:
+
+```bash
 $ php composer.phar create-project symfony/website-skeleton hotel-symfony
-
-We need change de variable `DATABASE_URL` in the `.env`:
-
 ```
+
+First we configure the database connection. We need change de variable
+`DATABASE_URL` in the `.env` file:
+
+```bash
 DATABASE_URL=sqlite:///%kernel.project_dir%/var/database.sql
 ```
+
+Then, we can create a entity. This entity will represent the `room` table.
 
 ```bash
 hotel-symfony$ php bin/console make:entity
@@ -168,6 +181,15 @@ In the interactive console we type the name of the attributes, its type, if is
 nullable and its length.
 
 This command create two files `src/Entity/Room.php` and `src/Repository/RoomRepository.php`
+
+Doctrine maps objects to rows and properties to columns. These objects or entities
+are the domain object of the application and they persisted in a database. The
+*Entity Manager* persist the new entities and updated and deleted them.
+
+A *Repository* is a container for all entities of a specific type, all `Room`s.
+The *Repository* provides four default finder methods: `find()`, `findOneBy()`,
+`findAll()` and `findBy()`. In addition, we can create custom finder methods, in this case
+the `src/Repository/RoomRepository.php` file is the correct place to put it.
 
 Una vez que la entidad esta creada, generamos la migración con el siguiente
 comando:
@@ -205,3 +227,10 @@ For load the fixture we run the fallowing command:
 ```bash
 php bin/console doctrine:fixtures:load
 ```
+
+# Comparing Commands
+
+Function      | Symfony       | Laravel
+------------- | ------------- |
+Create a Model| `$ php bin/console make:entity` | `$ php artisan make:model Room`
+Create a Seeder| | `$ php artisan make:seeder RoomSeeder`
